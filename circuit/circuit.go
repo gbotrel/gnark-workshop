@@ -19,13 +19,14 @@ func (circuit *Circuit) Define(curveID ecc.ID, cs *frontend.ConstraintSystem) er
 	const seed = "seed"
 
 	// hash function
-	mimc, err := mimc.NewMiMC(seed, curveID)
+	mimc, err := mimc.NewMiMC(seed, curveID, cs)
 	if err != nil {
 		return err
 	}
 
 	// assert mimc(secret) == hash
-	cs.AssertIsEqual(mimc.Hash(cs, circuit.Secret), circuit.Hash)
+	mimc.Write(circuit.Secret)
+	cs.AssertIsEqual(mimc.Sum(), circuit.Hash)
 
 	return nil
 }
